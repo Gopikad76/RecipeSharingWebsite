@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,400;1,200;1,300;1,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <title>Flavorsome Recipes</title>
+</head>
+<body>
+  <header>
+    <div class="logo" style="color:azure">Recipe Book</div>
+    <div class="nav-bar">
+      <ul>
+        <li><a href="#">Home</a></li>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Recipes</a></li>
+        <li><a href="#">Categories</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+  </header>
+
+<div class="hero">
+    
+    <div class="content">
+        
+      <h3 style="color:rgb(135, 100, 57)">Unleash Your Culinary Passion</h4>
+      <h1>Savor the Flavors</h1>
+ 
+      <h3 style="color:rgb(135, 100, 57)">Elevate Your Cooking Game</h3>
+      <div class="button"> <a href="#submitRecipeForm" style="text-decoration: none; color: inherit;">
+        <h2>Share Your Recipes here</h2>
+      </a></div>
+    </div>
+  </div>
+  <section class="about">
+    <h2>About Us</h2>
+    <div class="main">
+      <img src="r5(1).jpg" alt="" />
+      <div class="about-text">
+        <h3>
+          Welcome to our recipe website, where culinary inspiration meets delicious creations!<br>
+          <br>
+          Whether you're a seasoned chef or a passionate home cook, we are here to ignite your taste buds and guide you on a delightful culinary journey...
+        </h3>
+      </div>
+    </div>
+  </section>
+
+  <div class="recipe">
+    <h2>Featured Recipes</h2>
+    <div class="box" id="recipeBox">
+      <!-- Recipe cards will be dynamically added here -->
+    </div>
+  </div>
+
+  <div class="categories">
+    <h2>Categories</h2>
+    <div class="box">
+      <div class="ca-card">
+        <img src="r3(1).jpeg" alt="" />
+        <div class="content">
+          <h3>Main Courses</h3>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+          <button>Read More</button>
+        </div>
+      </div>
+      <div class="ca-card">
+        <img src="r4(1).jpeg" alt="" />
+        <div class="content">
+          <h3>Starters</h3>
+          <p>Delightful dishes to begin your meal.</p>
+          <button>Read More</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="contact">
+    <div class="contact-info">
+      <h2>Contact Information</h2>
+      <p><strong>Address:</strong> 123 Main Street, City, Country</p>
+      <p><strong>Phone:</strong> 1234567890</p>
+      <p><strong>Email:</strong> info@example.com</p>
+    </div>
+
+    <div class="contact-form"  id="submitRecipeForm">
+      <h2>Submit Your Recipe</h2>
+      <form id="recipeForm">
+        <label for="name">Name:</label>
+        <input type="text" name="name" id="name" required />
+        <label for="email">Email:</label>
+        <input type="email" name="email" id="email" required />
+        <label for="recipename">Recipe Name:</label>
+        <input type="text" name="recipename" id="recipename" required />
+        <label for="message">Message:</label>
+        <textarea name="message" id="message" required></textarea>
+        <button type="submit">Submit Recipe</button>
+      </form>
+    </div>
+  </section>
+
+  <footer>
+    <div class="social-icons">
+      <a href="#" class="social-icon"><i class="fab fa-facebook"></i></a>
+      <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+      <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+    </div>
+    <h5>Copyright © 2023 By Flavoursome Recipes</h5>
+  </footer>
+
+  <script>
+    const form = document.getElementById('recipeForm');
+    const recipeBox = document.getElementById('recipeBox');
+
+    // Function to load recipes and alternate images
+    async function loadRecipes() {
+      try {
+        const res = await fetch('http://localhost:3000/api/recipes');
+        const recipes = await res.json();
+
+        let imageToggle = true;  // Flag to alternate images
+
+        recipes.forEach(recipe => {
+          const card = document.createElement('div');
+          card.classList.add('card');
+
+          // Alternating between two images
+          const imageSrc = imageToggle ? 'r1.jpeg' : 'r2(1).jpeg' ;
+          
+          card.innerHTML = `
+            <img src="${imageSrc}" alt="Recipe Image" />
+            <div class="content">
+              <h3>${recipe.recipename}</h3>
+              <p>${recipe.message}</p>
+              <button>View Recipe</button>
+            </div>
+          `;
+
+          // Toggle image for the next recipe
+          imageToggle = !imageToggle;
+
+          recipeBox.appendChild(card);
+        });
+      } catch (err) {
+        console.error('Error loading recipes:', err);
+      }
+    }
+
+    // Handle form submission
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = {
+        name: form.elements['name'].value,
+        email: form.elements['email'].value,
+        recipename: form.elements['recipename'].value,
+        message: form.elements['message'].value
+      };
+
+      try {
+        const response = await fetch('http://localhost:3000/api/recipes', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+          alert('Recipe submitted successfully!');
+          form.reset();
+          location.reload(); // Reload to show the newly added recipe
+        } else {
+          alert('Something went wrong!');
+        }
+      } catch (err) {
+        console.error('Fetch error:', err);
+        alert('Could not connect to server.');
+      }
+    });
+
+    window.onload = loadRecipes;
+  </script>
+</body>
+</html>
